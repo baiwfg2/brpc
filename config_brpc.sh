@@ -26,11 +26,14 @@ if [ $? != 0 ] ; then >&2 $ECHO "Terminating..."; exit 1 ; fi
 # Note the quotes around `$TEMP': they are essential!
 eval set -- "$TEMP"
 
+PB_HOME=/opt/gcc-5.3-libraray/protobuf-without-c++11-abi/3.0.x
+GCC_HOME=/opt/gcc-5.3.0 
 # Convert to abspath always so that generated mk is include-able from everywhere
 while true; do
     case "$1" in
-        --headers ) HDRS_IN="$(realpath $2)"; shift 2 ;;
-        --libs ) LIBS_IN="$(realpath $2)"; shift 2 ;;
+# low version linux may not have realpath file, so hard-code the include file and libs
+        --headers ) HDRS_IN="/usr/include ${PB_HOME}/include /usr/local/include"; shift 2 ;;
+        --libs ) LIBS_IN="/usr/lib64 /usr/local/lib ${PB_HOME}/lib"; shift 2 ;;
         --cc ) CC=$2; shift 2 ;;
         --cxx ) CXX=$2; shift 2 ;;
         --with-glog ) WITH_GLOG=1; shift 1 ;;
