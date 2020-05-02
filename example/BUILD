@@ -45,6 +45,50 @@ cc_proto_library(
     ],
 )
 
+proto_library(
+    name = "http_c++_proto",
+    srcs = [
+        "http_c++/http.proto",
+    ],
+)
+
+cc_proto_library(
+    name = "cc_http_c++_proto",
+    deps = [
+        ":http_c++_proto",
+    ],
+)
+
+cc_binary(
+    name = "http_server",
+    srcs = [
+        "http_c++/http_server.cpp",
+    ],
+    includes = [
+        "http_c++",
+    ],
+    deps = [
+        ":cc_http_c++_proto",
+        "//:brpc",
+    ],
+    copts = COPTS,
+)
+
+cc_binary(
+    name = "http_server_tcmalloc",
+    srcs = [
+        "http_c++/http_server.cpp",
+    ],
+    includes = [
+        "http_c++",
+    ],
+    deps = [
+        ":cc_http_c++_proto",
+        "//:brpc",
+    ],
+    copts = COPTS,
+)
+
 cc_binary(
     name = "echo_c++_server",
     srcs = [

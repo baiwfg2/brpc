@@ -65,3 +65,18 @@ http_archive(
     strip_prefix = "googletest-0fe96607d85cf3a25ac40da369db62bbee2939a5",
     url = "https://github.com/google/googletest/archive/0fe96607d85cf3a25ac40da369db62bbee2939a5.tar.gz",
 )
+
+http_archive(
+    name = "com_google_tcmalloc",
+    urls = ["https://github.com/google/tcmalloc/archive/9c5390e25c8612332251983d30ca6501bce9d41f.zip"],
+    strip_prefix = "tcmalloc-9c5390e25c8612332251983d30ca6501bce9d41f",
+    sha256 = "dd1e3f8b8c83c61cd13deea53832f985adb29e0093159539995d72cf989bf258",
+)
+
+# tcmalloc依赖于它
+http_archive(
+    name = "com_google_absl",
+    urls = ["https://github.com/abseil/abseil-cpp/archive/a1d6689907864974118e592ef2ac7d716c576aad.zip"],
+    strip_prefix = "abseil-cpp-a1d6689907864974118e592ef2ac7d716c576aad",
+    sha256 = "53b78ffe87db3c737feddda52fa10dcdb75e2d85eed1cb1c5bfd77ca22e53e53",
+)

@@ -29,6 +29,8 @@ DEFINE_int32(idle_timeout_s, -1, "Connection will be closed if there is no "
 DEFINE_int32(logoff_ms, 2000, "Maximum duration of server's LOGOFF state "
              "(waiting for client to close connection before server stops)");
 
+DEFINE_int32(num_threads, 8, "Threads num");
+
 DEFINE_string(certificate, "cert.pem", "Certificate file path to enable SSL");
 DEFINE_string(private_key, "key.pem", "Private key file path to enable SSL");
 DEFINE_string(ciphers, "", "Cipher suite used for SSL connections");
@@ -53,11 +55,11 @@ public:
         // Fill response.
         cntl->http_response().set_content_type("text/plain");
         butil::IOBufBuilder os;
-        os << "queries:";
-        for (brpc::URI::QueryIterator it = cntl->http_request().uri().QueryBegin();
-                it != cntl->http_request().uri().QueryEnd(); ++it) {
-            os << ' ' << it->first << '=' << it->second;
-        }
+        // os << "queries:";
+        // for (brpc::URI::QueryIterator it = cntl->http_request().uri().QueryBegin();
+        //         it != cntl->http_request().uri().QueryEnd(); ++it) {
+        //     os << ' ' << it->first << '=' << it->second;
+        // }
         os << "\nbody: " << cntl->request_attachment() << '\n';
         os.move_to(cntl->response_attachment());
     }
@@ -166,23 +168,23 @@ int main(int argc, char* argv[]) {
     // service is put on stack, we don't want server to delete it, otherwise
     // use brpc::SERVER_OWNS_SERVICE.
     if (server.AddService(&http_svc,
-                          brpc::SERVER_DOESNT_OWN_SERVICE) != 0) {
+                          brpc::SERVER_DOESNT_OWN_SERVICE, "/hello  => Echo") != 0) {
         LOG(ERROR) << "Fail to add http_svc";
         return -1;
     }
-    if (server.AddService(&file_svc,
-                          brpc::SERVER_DOESNT_OWN_SERVICE) != 0) {
-        LOG(ERROR) << "Fail to add file_svc";
-        return -1;
-    }
-    if (server.AddService(&queue_svc,
-                          brpc::SERVER_DOESNT_OWN_SERVICE,
-                          "/v1/queue/start   => start,"
-                          "/v1/queue/stop    => stop,"
-                          "/v1/queue/stats/* => getstats") != 0) {
-        LOG(ERROR) << "Fail to add queue_svc";
-        return -1;
-    }
+    // if (server.AddService(&file_svc,
+    //                       brpc::SERVER_DOESNT_OWN_SERVICE) != 0) {
+    //     LOG(ERROR) << "Fail to add file_svc";
+    //     return -1;
+    // }
+    // if (server.AddService(&queue_svc,
+    //                       brpc::SERVER_DOESNT_OWN_SERVICE,
+    //                       "/v1/queue/start   => start,"
+    //                       "/v1/queue/stop    => stop,"
+    //                       "/v1/queue/stats/* => getstats") != 0) {
+    //     LOG(ERROR) << "Fail to add queue_svc";
+    //     return -1;
+    // }
 
     // Start the server.
     brpc::ServerOptions options;
@@ -190,6 +192,7 @@ int main(int argc, char* argv[]) {
     options.mutable_ssl_options()->default_cert.certificate = FLAGS_certificate;
     options.mutable_ssl_options()->default_cert.private_key = FLAGS_private_key;
     options.mutable_ssl_options()->ciphers = FLAGS_ciphers;
+    options.num_threads = FLAGS_num_threads;
     if (server.Start(FLAGS_port, &options) != 0) {
         LOG(ERROR) << "Fail to start HttpServer";
         return -1;
